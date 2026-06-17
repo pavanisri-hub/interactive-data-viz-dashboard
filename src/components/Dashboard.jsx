@@ -19,7 +19,6 @@ function Dashboard() {
   const [error, setError] = useState(null);
   const [filteredData, setFilteredData] = useState(mockData);
 
-  // Handle filter changes
   const handleCategoryChange = (category) => {
     setFilters((prev) => ({
       ...prev,
@@ -35,7 +34,6 @@ function Dashboard() {
     }));
   };
 
-  // Derive filtered data whenever filters change
   useEffect(() => {
     let isCancelled = false;
 
@@ -51,8 +49,6 @@ function Dashboard() {
 
         if (!isCancelled) {
           if (nextData.length === 0) {
-            // Instead of treating as hard error, we keep filteredData empty
-            // and show a friendly empty state message in the UI.
             setFilteredData([]);
           } else {
             setFilteredData(nextData);
@@ -83,6 +79,24 @@ function Dashboard() {
     [isLoading, error, filteredData.length]
   );
 
+  const filterSummary = useMemo(() => {
+    const parts = [];
+
+    if (filters.category) {
+      parts.push(`Category: ${filters.category}`);
+    } else {
+      parts.push('Category: All');
+    }
+
+    if (filters.startDate && filters.endDate) {
+      parts.push(`Date: ${filters.startDate} → ${filters.endDate}`);
+    } else {
+      parts.push('Date: Full range');
+    }
+
+    return parts.join(' · ');
+  }, [filters.category, filters.startDate, filters.endDate]);
+
   return (
     <section
       className="dashboard-container"
@@ -92,6 +106,13 @@ function Dashboard() {
         <h2>Dashboard Overview</h2>
         <p className="dashboard-subtitle">
           Explore dataset insights using interactive filters and charts.
+        </p>
+        <p
+          className="dashboard-subtitle"
+          aria-live="polite"
+          style={{ marginTop: '0.4rem', fontSize: '0.8rem', opacity: 0.9 }}
+        >
+          {filterSummary}
         </p>
       </header>
 
