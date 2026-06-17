@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  dashboard:
+    build: .
+    container_name: interactive-data-viz-dashboard
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
