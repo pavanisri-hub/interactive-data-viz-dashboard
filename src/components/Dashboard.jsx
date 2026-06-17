@@ -5,11 +5,12 @@ import PieChartComponent from './charts/PieChart.jsx';
 import CategoryFilter from './filters/CategoryFilter.jsx';
 import DateRangeFilter from './filters/DateRangeFilter.jsx';
 import LoadingSpinner from './common/LoadingSpinner.jsx';
+import mockData from '../data/mockData.json';
 
 function Dashboard() {
-  // Real state & data will come in later steps
   const isLoading = false;
   const error = null;
+  const data = mockData;
 
   return (
     <section
@@ -48,9 +49,9 @@ function Dashboard() {
           className="dashboard-charts"
           aria-label="Dashboard charts"
         >
-          <LineChartComponent data={[]} />
-          <BarChartComponent data={[]} />
-          <PieChartComponent data={[]} />
+          <LineChartComponent data={data} />
+          <BarChartComponent data={data} />
+          <PieChartComponent data={data} />
         </section>
       )}
     </section>
