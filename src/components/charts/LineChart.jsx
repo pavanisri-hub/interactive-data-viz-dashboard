@@ -30,7 +30,7 @@ function LineChartComponent({ data }) {
     >
       <h3 className="chart-title">Sales Trend Over Time</h3>
       <div style={{ width: '100%', height: 260, minWidth: 0 }}>
-        {ready && (
+        {ready && sortedData.length > 0 &&(
           <ResponsiveContainer>
             <LineChart
               data={sortedData}

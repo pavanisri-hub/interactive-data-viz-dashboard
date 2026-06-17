@@ -38,7 +38,7 @@ function BarChartComponent({ data }) {
     >
       <h3 className="chart-title">Total Value by Category</h3>
       <div style={{ width: '100%', height: 260, minWidth: 0 }}>
-        {ready && (
+        {ready && aggregatedByCategory.length > 0 && (
           <ResponsiveContainer>
             <BarChart
               data={aggregatedByCategory}

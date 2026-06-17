@@ -38,7 +38,7 @@ function PieChartComponent({ data }) {
     >
       <h3 className="chart-title">Value Distribution by Region</h3>
       <div style={{ width: '100%', height: 260, minWidth: 0 }}>
-        {ready && (
+        {ready && aggregatedByRegion.length > 0 && (
           <ResponsiveContainer>
             <PieChart>
               <Pie
