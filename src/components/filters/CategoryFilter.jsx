@@ -1,6 +1,10 @@
 import React from 'react';
 
-function CategoryFilter() {
+function CategoryFilter({ value, onChange }) {
+  const handleChange = (event) => {
+    onChange?.(event.target.value || '');
+  };
+
   return (
     <div className="filter-group">
       <label htmlFor="category-filter" className="filter-label">
@@ -10,6 +14,8 @@ function CategoryFilter() {
         id="category-filter"
         className="filter-control"
         aria-label="Filter by category"
+        value={value || ''}
+        onChange={handleChange}
       >
         <option value="">All</option>
         <option value="Electronics">Electronics</option>

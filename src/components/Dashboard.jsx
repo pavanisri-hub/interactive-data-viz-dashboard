@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import LineChartComponent from './charts/LineChart.jsx';
 import BarChartComponent from './charts/BarChart.jsx';
 import PieChartComponent from './charts/PieChart.jsx';
@@ -6,11 +6,82 @@ import CategoryFilter from './filters/CategoryFilter.jsx';
 import DateRangeFilter from './filters/DateRangeFilter.jsx';
 import LoadingSpinner from './common/LoadingSpinner.jsx';
 import mockData from '../data/mockData.json';
+import { filterData } from '../utils/dataTransformers.js';
 
 function Dashboard() {
-  const isLoading = false;
-  const error = null;
-  const data = mockData;
+  const [filters, setFilters] = useState({
+    category: '',
+    startDate: '',
+    endDate: ''
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [filteredData, setFilteredData] = useState(mockData);
+
+  // Handle filter changes
+  const handleCategoryChange = (category) => {
+    setFilters((prev) => ({
+      ...prev,
+      category
+    }));
+  };
+
+  const handleDateRangeChange = ({ startDate, endDate }) => {
+    setFilters((prev) => ({
+      ...prev,
+      startDate,
+      endDate
+    }));
+  };
+
+  // Derive filtered data whenever filters change
+  useEffect(() => {
+    let isCancelled = false;
+
+    const runFilter = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Simulate processing delay
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        const nextData = filterData(mockData, filters);
+
+        if (!isCancelled) {
+          if (nextData.length === 0) {
+            // Instead of treating as hard error, we keep filteredData empty
+            // and show a friendly empty state message in the UI.
+            setFilteredData([]);
+          } else {
+            setFilteredData(nextData);
+          }
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          console.error('Error filtering data', err);
+          setError('Something went wrong while processing the data.');
+          setFilteredData([]);
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    runFilter();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [filters]);
+
+  const hasEmptyState = useMemo(
+    () => !isLoading && !error && filteredData.length === 0,
+    [isLoading, error, filteredData.length]
+  );
 
   return (
     <section
@@ -28,8 +99,15 @@ function Dashboard() {
         className="dashboard-filters"
         aria-label="Dashboard filters"
       >
-        <CategoryFilter />
-        <DateRangeFilter />
+        <CategoryFilter
+          value={filters.category}
+          onChange={handleCategoryChange}
+        />
+        <DateRangeFilter
+          startDate={filters.startDate}
+          endDate={filters.endDate}
+          onChange={handleDateRangeChange}
+        />
       </section>
 
       {isLoading && (
@@ -44,14 +122,20 @@ function Dashboard() {
         </div>
       )}
 
-      {!isLoading && !error && (
+      {hasEmptyState && (
+        <div className="dashboard-error" role="status">
+          No data matches the selected filters. Try adjusting your selection.
+        </div>
+      )}
+
+      {!isLoading && !error && filteredData.length > 0 && (
         <section
           className="dashboard-charts"
           aria-label="Dashboard charts"
         >
-          <LineChartComponent data={data} />
-          <BarChartComponent data={data} />
-          <PieChartComponent data={data} />
+          <LineChartComponent data={filteredData} />
+          <BarChartComponent data={filteredData} />
+          <PieChartComponent data={filteredData} />
         </section>
       )}
     </section>
